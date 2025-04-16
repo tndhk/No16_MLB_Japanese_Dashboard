@@ -8,11 +8,20 @@ export type PlayerStats = {
   rbi?: number;
   obp?: string;
   ops?: string;
+  ab?: number;
+  h?: number;
+  bb?: number;
+  sb?: number;
+  war?: number;
   // ピッチャー用
   era?: string;
   whip?: string;
   k?: number;
   wl?: string;
+  g?: number;
+  ip?: string;
+  k9?: number;
+  bb9?: number;
 };
 
 /**
@@ -45,6 +54,10 @@ export async function fetchStats(playerId: number, year: number, group?: 'hittin
         whip: stat.whip,
         k: stat.strikeOuts,
         wl: stat.wins + "-" + stat.losses,
+        g: stat.gamesPlayed,
+        ip: stat.inningsPitched,
+        k9: stat.strikeoutsPer9Inn,
+        bb9: stat.baseOnBallsPer9,
       };
     } else if (groupName === "hitting") {
       // バッター
@@ -57,6 +70,11 @@ export async function fetchStats(playerId: number, year: number, group?: 'hittin
         rbi: stat.rbi,
         obp: stat.obp,
         ops: stat.ops,
+        ab: stat.atBats,
+        h: stat.hits,
+        bb: stat.baseOnBalls,
+        sb: stat.stolenBases,
+        war: stat.war,
       };
     } else {
       return null;

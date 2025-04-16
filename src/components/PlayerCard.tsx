@@ -19,19 +19,28 @@ export function PlayerCard({ stats, type }: PlayerCardProps) {
         {type === "pitcher" ? (
           // 投手指標
           <div className="grid grid-cols-2 gap-2">
+            <Stat label="登板" value={stats.g} />
+            <Stat label="IP" value={stats.ip} />
             <Stat label="ERA" value={stats.era} />
             <Stat label="WHIP" value={stats.whip} />
             <Stat label="K" value={stats.k} />
+            <Stat label="K/9" value={stats.k9} />
+            <Stat label="BB/9" value={stats.bb9} />
             <Stat label="W-L" value={stats.wl} />
           </div>
         ) : (
           // 打者指標
           <div className="grid grid-cols-2 gap-2">
+            <Stat label="打数" value={stats.ab} />
+            <Stat label="安打" value={stats.h} />
             <Stat label="AVG" value={stats.avg} />
             <Stat label="HR" value={stats.hr} />
             <Stat label="RBI" value={stats.rbi} />
+            <Stat label="四球" value={stats.bb} />
+            <Stat label="盗塁" value={stats.sb} />
             <Stat label="OBP" value={stats.obp} />
             <Stat label="OPS" value={stats.ops} />
+            <Stat label="WAR" value={stats.war} />
           </div>
         )}
       </CardContent>
