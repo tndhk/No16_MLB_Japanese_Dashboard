@@ -8,4 +8,15 @@ services:
       - ./public:/app/public
       - ./src:/app/src
     environment:
-      - NODE_ENV=production 
+      - NODE_ENV=production
+
+  dev:
+    build: .
+    command: npx next dev -p 3001
+    ports:
+      - "3001:3001"
+    volumes:
+      - ./:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development

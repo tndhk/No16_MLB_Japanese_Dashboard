@@ -12,7 +12,7 @@ export function PlayerCard({ stats, type }: PlayerCardProps) {
       <CardHeader>
         <CardTitle>{stats.name}</CardTitle>
         <div className="text-sm text-muted-foreground">
-          {stats.team} / {stats.position}
+          {stats.team} / {type === 'pitcher' ? '投手' : '打者'}
         </div>
       </CardHeader>
       <CardContent>

@@ -6,10 +6,12 @@ import { Toaster } from "@/components/ui/sonner";
 import { toast } from "sonner";
 import { Suspense } from "react";
 
-async function getPlayers() {
+type PlayerJson = { name: string; id: number; twoWay: boolean };
+
+async function getPlayers(): Promise<PlayerJson[]> {
   const filePath = path.join(process.cwd(), "public", "players.json");
   const data = await fs.readFile(filePath, "utf-8");
-  return JSON.parse(data) as { name: string; id: number }[];
+  return JSON.parse(data) as PlayerJson[];
 }
 
 function LoadingSkeleton() {
@@ -22,19 +24,38 @@ function LoadingSkeleton() {
   );
 }
 
-function isPitcher(stats: PlayerStats) {
-  return stats.position === "P";
-}
-
 export default async function Home() {
   let errorMsg = "";
-  let statsList: (PlayerStats | null)[] = [];
+  let allStats: PlayerStats[] = [];
   try {
     const players = await getPlayers();
     const year = new Date().getFullYear();
-    statsList = await Promise.all(
-      players.map((p) => fetchStats(p.id, year).catch(() => null))
-    );
+    // twoWayならhitting/pitching両方、そうでなければhitting→pitchingの順で取得
+    const statsPromises = players.flatMap((p) => {
+      if (p.twoWay) {
+        return [
+          fetchStats(p.id, year, "hitting"),
+          fetchStats(p.id, year, "pitching"),
+        ];
+      } else {
+        // まずhittingを試し、なければpitching
+        return [
+          fetchStats(p.id, year, "hitting").then(
+            (res) => res ?? fetchStats(p.id, year, "pitching")
+          ),
+        ];
+      }
+    });
+    const statsList = await Promise.all(statsPromises);
+    // null除外＆同じ選手・typeの重複除外
+    const seen = new Set<string>();
+    allStats = statsList.filter((s): s is PlayerStats => {
+      if (!s) return false;
+      const key = s.name + s.type;
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
   } catch {
     errorMsg = "選手データの取得に失敗しました";
   }
@@ -43,9 +64,8 @@ export default async function Home() {
     toast.error(errorMsg);
   }
 
-  // データ取得成功したものだけを分離
-  const batters = statsList.filter((s): s is PlayerStats => !!s && !isPitcher(s));
-  const pitchers = statsList.filter((s): s is PlayerStats => !!s && isPitcher(s));
+  const batters = allStats.filter((s) => s.type === "batter");
+  const pitchers = allStats.filter((s) => s.type === "pitcher");
 
   return (
     <>
@@ -57,8 +77,8 @@ export default async function Home() {
             <div className="p-4 border rounded text-center text-red-500 mb-8">打者データ取得エラー</div>
           ) : (
             <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 mb-8">
-              {batters.map((stats, i) => (
-                <PlayerCard key={stats.name + i} stats={stats} type="batter" />
+              {batters.map((stats) => (
+                <PlayerCard key={stats.name + stats.type} stats={stats} type="batter" />
               ))}
             </div>
           )}
@@ -68,8 +88,8 @@ export default async function Home() {
             <div className="p-4 border rounded text-center text-red-500">投手データ取得エラー</div>
           ) : (
             <div className="grid gap-6 grid-cols-1 sm:grid-cols-2">
-              {pitchers.map((stats, i) => (
-                <PlayerCard key={stats.name + i} stats={stats} type="pitcher" />
+              {pitchers.map((stats) => (
+                <PlayerCard key={stats.name + stats.type} stats={stats} type="pitcher" />
               ))}
             </div>
           )}

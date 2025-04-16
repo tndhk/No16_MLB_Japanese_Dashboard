@@ -1,7 +1,7 @@
 export type PlayerStats = {
   name: string;
   team: string;
-  position: string;
+  type: 'batter' | 'pitcher';
   // バッター用
   avg?: string;
   hr?: number;
@@ -16,45 +16,50 @@ export type PlayerStats = {
 };
 
 /**
- * 指定した選手ID・年のMLB成績を取得
+ * 指定した選手ID・年・groupのMLB成績を取得
  * @param playerId MLB APIの選手ID
  * @param year 取得する年度（例: 2024）
+ * @param group 'hitting' or 'pitching'（省略時はどちらか一方のみ）
  */
-export async function fetchStats(playerId: number, year: number): Promise<PlayerStats | null> {
-  const url = `https://statsapi.mlb.com/api/v1/people/${playerId}/stats?stats=season&season=${year}`;
+export async function fetchStats(playerId: number, year: number, group?: 'hitting' | 'pitching'): Promise<PlayerStats | null> {
+  let url = `https://statsapi.mlb.com/api/v1/people/${playerId}/stats?stats=season&season=${year}`;
+  if (group) url += `&group=${group}`;
   try {
     const res = await fetch(url, { next: { revalidate: 3600 } });
     if (!res.ok) throw new Error(`API error: ${res.status}`);
     const data = await res.json();
-    const split = data?.stats?.[0]?.splits?.[0];
+    const statGroup = data?.stats?.[0];
+    const split = statGroup?.splits?.[0];
     const stat = split?.stat;
-    if (!split || !stat) return null;
-    const position = split?.position?.abbreviation || "";
+    if (!statGroup || !split || !stat) return null;
+    const groupName = statGroup.group?.displayName;
     const team = split?.team?.name || "";
     const name = split?.player?.fullName || "";
-    if (["P"].includes(position)) {
+    if (groupName === "pitching") {
       // ピッチャー
       return {
         name,
         team,
-        position,
+        type: "pitcher",
         era: stat.era,
         whip: stat.whip,
         k: stat.strikeOuts,
         wl: stat.wins + "-" + stat.losses,
       };
-    } else {
+    } else if (groupName === "hitting") {
       // バッター
       return {
         name,
         team,
-        position,
+        type: "batter",
         avg: stat.avg,
         hr: stat.homeRuns,
         rbi: stat.rbi,
         obp: stat.obp,
         ops: stat.ops,
       };
+    } else {
+      return null;
     }
   } catch (e) {
     console.error("fetchStats error", e);

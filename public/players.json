@@ -1,14 +1,14 @@
 [
-  { "name": "Shohei Ohtani", "id": 660271 },
-  { "name": "Yu Darvish", "id": 506433 },
-  { "name": "Shota Imanaga", "id": 684007 },
-  { "name": "Kenta Maeda", "id": 628317 },
-  { "name": "Yoshinobu Yamamoto", "id": 808967 },
-  { "name": "Yusei Kikuchi", "id": 579328 },
-  { "name": "Yuki Matsui", "id": 673513 },
-  { "name": "Roki Sasaki", "id": 808963 },
-  { "name": "Kodai Senga", "id": 673540 },
-  { "name": "Tomoyuki Sugano", "id": 608372 },
-  { "name": "Seiya Suzuki", "id": 673548 },
-  { "name": "Masataka Yoshida", "id": 807799 }
+  { "name": "Shohei Ohtani", "id": 660271, "twoWay": true },
+  { "name": "Yu Darvish", "id": 506433, "twoWay": false },
+  { "name": "Shota Imanaga", "id": 684007, "twoWay": false },
+  { "name": "Kenta Maeda", "id": 628317, "twoWay": false },
+  { "name": "Yoshinobu Yamamoto", "id": 808967, "twoWay": false },
+  { "name": "Yusei Kikuchi", "id": 579328, "twoWay": false },
+  { "name": "Yuki Matsui", "id": 673513, "twoWay": false },
+  { "name": "Roki Sasaki", "id": 808963, "twoWay": false },
+  { "name": "Kodai Senga", "id": 673540, "twoWay": false },
+  { "name": "Tomoyuki Sugano", "id": 608372, "twoWay": false },
+  { "name": "Seiya Suzuki", "id": 673548, "twoWay": false },
+  { "name": "Masataka Yoshida", "id": 807799, "twoWay": false }
 ] 
