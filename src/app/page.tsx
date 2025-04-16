@@ -22,6 +22,10 @@ function LoadingSkeleton() {
   );
 }
 
+function isPitcher(stats: PlayerStats) {
+  return stats.position === "P";
+}
+
 export default async function Home() {
   let errorMsg = "";
   let statsList: (PlayerStats | null)[] = [];
@@ -39,27 +43,37 @@ export default async function Home() {
     toast.error(errorMsg);
   }
 
+  // データ取得成功したものだけを分離
+  const batters = statsList.filter((s): s is PlayerStats => !!s && !isPitcher(s));
+  const pitchers = statsList.filter((s): s is PlayerStats => !!s && isPitcher(s));
+
   return (
     <>
       <Toaster />
       <Suspense fallback={<LoadingSkeleton />}>
-        <main className="max-w-4xl mx-auto py-8 px-2 grid gap-6 grid-cols-1 sm:grid-cols-2" role="main" aria-label="日本人MLB選手成績ダッシュボード">
-          {statsList.length === 0 ? (
-            <div className="p-4 border rounded text-center text-red-500">
-              データ取得エラー
-            </div>
+        <section className="max-w-4xl mx-auto py-8 px-2">
+          <h2 className="text-2xl font-bold mb-4">打者</h2>
+          {batters.length === 0 ? (
+            <div className="p-4 border rounded text-center text-red-500 mb-8">打者データ取得エラー</div>
           ) : (
-            statsList.map((stats, i) =>
-              stats ? (
-                <PlayerCard key={stats.name + i} stats={stats} />
-              ) : (
-                <div key={i} className="p-4 border rounded text-center text-red-500">
-                  データ取得エラー
-                </div>
-              )
-            )
+            <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 mb-8">
+              {batters.map((stats, i) => (
+                <PlayerCard key={stats.name + i} stats={stats} type="batter" />
+              ))}
+            </div>
           )}
-        </main>
+
+          <h2 className="text-2xl font-bold mb-4 mt-8">投手</h2>
+          {pitchers.length === 0 ? (
+            <div className="p-4 border rounded text-center text-red-500">投手データ取得エラー</div>
+          ) : (
+            <div className="grid gap-6 grid-cols-1 sm:grid-cols-2">
+              {pitchers.map((stats, i) => (
+                <PlayerCard key={stats.name + i} stats={stats} type="pitcher" />
+              ))}
+            </div>
+          )}
+        </section>
       </Suspense>
     </>
   );

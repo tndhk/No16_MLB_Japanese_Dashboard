@@ -3,9 +3,10 @@ import type { PlayerStats } from "@/utils/fetchStats";
 
 interface PlayerCardProps {
   stats: PlayerStats;
+  type: 'batter' | 'pitcher';
 }
 
-export function PlayerCard({ stats }: PlayerCardProps) {
+export function PlayerCard({ stats, type }: PlayerCardProps) {
   return (
     <Card className="w-full max-w-md mx-auto mb-4" role="region" aria-label={`${stats.name}の成績`}>
       <CardHeader>
@@ -15,8 +16,8 @@ export function PlayerCard({ stats }: PlayerCardProps) {
         </div>
       </CardHeader>
       <CardContent>
-        {stats.position === "P" ? (
-          // ピッチャー
+        {type === "pitcher" ? (
+          // 投手指標
           <div className="grid grid-cols-2 gap-2">
             <Stat label="ERA" value={stats.era} />
             <Stat label="WHIP" value={stats.whip} />
@@ -24,7 +25,7 @@ export function PlayerCard({ stats }: PlayerCardProps) {
             <Stat label="W-L" value={stats.wl} />
           </div>
         ) : (
-          // バッター
+          // 打者指標
           <div className="grid grid-cols-2 gap-2">
             <Stat label="AVG" value={stats.avg} />
             <Stat label="HR" value={stats.hr} />

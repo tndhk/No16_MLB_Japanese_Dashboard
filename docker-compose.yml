@@ -6,5 +6,6 @@ services:
       - "3001:3001"
     volumes:
       - ./public:/app/public
+      - ./src:/app/src
     environment:
       - NODE_ENV=production 
